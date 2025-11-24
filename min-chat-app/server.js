@@ -1,7 +1,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
-const path = require('path'); // <-- 1. ENDRING: Importer 'path'
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -9,24 +9,20 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// -----------------------------------------------------------------
-// 2. ENDRING: Server frontend-filen (index.html)
-// -----------------------------------------------------------------
+// Server statiske filer
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
-// -----------------------------------------------------------------
 
 
-// --- Databasetilkobling ---
+
+// Databasetilkobling 
 const db = new sqlite3.Database('./chat.db', (err) => {
     if (err) {
         console.error(err.message);
     }
     console.log('Koblet til chat.db-databasen.');
 });
-
-// --- API-Endepunkter (Disse er uendret) ---
 
 // Hent alle rom
 app.get('/rooms', (req, res) => {
@@ -109,7 +105,7 @@ function insertMessage(person_id, innhold, rom_id, res) {
     });
 }
 
-// --- Database-oppsett og Server-start (Uendret fra forrige fiks) ---
+// Database-oppsett og Server-start
 db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS Personer (

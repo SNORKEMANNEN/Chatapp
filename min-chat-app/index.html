@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Min Chat-App</title>
+    <title>Chatapp</title>
     
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: grid; place-items: center; min-height: 90vh; background: #f0f2f5; margin: 0; }
@@ -50,7 +50,6 @@
     <script>
         const API_URL = 'http://localhost:3000';
 
-        // Hent referanser til HTML-elementer
         const chatBox = document.getElementById('chat-box');
         const usernameInput = document.getElementById('username'); 
         const messageInput = document.getElementById('message-input');
@@ -75,7 +74,7 @@
                 const response = await fetch(`${API_URL}/messages/${romId}`);
                 const result = await response.json();
                 
-                chatBox.innerHTML = ''; // Tøm chatten
+                chatBox.innerHTML = ''; 
                 if (result.data.length === 0) {
                     chatBox.innerHTML = '<div style="text-align: center; color: #888; padding-top: 20px;">Ingen meldinger i dette rommet ennå.</div>';
                 }
@@ -86,7 +85,7 @@
                     msgElement.innerHTML = `<strong>${msg.navn}:</strong> ${msg.innhold}`; 
                     chatBox.appendChild(msgElement);
                 });
-                scrollToBottom(); // Scroll til bunnen etter å ha lastet meldinger
+                scrollToBottom(); 
             } catch (error) {
                 console.error("Klarte ikke hente meldinger:", error);
             }
@@ -110,8 +109,8 @@
                     body: JSON.stringify({ user: user, message: message, rom: romId }),
                 });
 
-                messageInput.value = ''; // Tøm inputfeltet
-                await fetchMessages(); // Hent meldinger på nytt (inkludert din nye)
+                messageInput.value = ''; 
+                await fetchMessages(); 
 
             } catch (error) {
                 console.error("Klarte ikke sende melding:", error);
@@ -124,7 +123,7 @@
                 const response = await fetch(`${API_URL}/rooms`);
                 const result = await response.json();
                 
-                romSelect.innerHTML = ''; // Tøm listen
+                romSelect.innerHTML = '';
                 
                 if (result.data.length === 0) {
                     const defaultOption = document.createElement('option');
@@ -134,20 +133,18 @@
                 } else {
                     result.data.forEach(rom => {
                         const option = document.createElement('option');
-                        option.value = rom.id; // Verdien er ID
-                        option.textContent = rom.navn; // Teksten er Navn
+                        option.value = rom.id;
+                        option.textContent = rom.navn;
                         romSelect.appendChild(option);
                     });
                 }
                 
-                await fetchMessages(); // Hent meldinger for det rommet som er valgt
+                await fetchMessages(); 
 
             } catch (error) {
                 console.error("Klarte ikke hente rom:", error);
             }
         }
-
-        // --- Event Listeners (Oppsett) ---
 
         sendButton.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => {
@@ -155,11 +152,10 @@
         });
         romSelect.addEventListener('change', fetchMessages);
         
-        // Klikk på '+' knappen for å lage nytt rom
         createRoomBtn.addEventListener('click', async () => {
             const newRomName = prompt("Hva skal det nye rommet hete?");
             
-            if (!newRomName || newRomName.trim() === '') return; // Avbrutt
+            if (!newRomName || newRomName.trim() === '') return;
 
             try {
                 const response = await fetch(`${API_URL}/room`, {
@@ -168,9 +164,9 @@
                     body: JSON.stringify({ navn: newRomName.trim() })
                 });
 
-                const newRom = await response.json(); // Får tilbake {id, navn}
+                const newRom = await response.json(); 
 
-                // Sjekk om rommet (basert på ID) allerede er i listen
+                // Sjekk om rommet allerede er i listen
                 const romFinnes = [...romSelect.options].some(opt => opt.value == newRom.id);
                 
                 if (!romFinnes) {
@@ -183,8 +179,8 @@
                     if (defaultOpt) defaultOpt.remove();
                 }
                 
-                romSelect.value = newRom.id; // Velg det nye rommet
-                fetchMessages(); // Last inn meldingene (vil være tomt)
+                romSelect.value = newRom.id; 
+                fetchMessages(); 
                 
             } catch (error) {
                 console.error("Feil ved oppretting av rom:", error);
@@ -193,8 +189,8 @@
         });
 
         // --- Oppstart ---
-        fetchAndPopulateRooms(); // Hent rom-listen når siden lastes
-        setInterval(fetchMessages, 3000); // Sjekk etter nye meldinger hvert 3. sekund
+        fetchAndPopulateRooms();
+        setInterval(fetchMessages, 3000);
 
     </script>
 </body>
