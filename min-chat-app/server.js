@@ -59,8 +59,9 @@ app.post('/room', (req, res) => {
 // Hent meldinger for et spesifikt rom
 app.get('/messages/:rom_id', (req, res) => {
     const rom_id = req.params.rom_id;
+    
     const sql = `
-        SELECT T1.innhold, T2.navn 
+        SELECT T1.id, T1.innhold, T2.navn, T1.timestamp 
         FROM melding AS T1
         JOIN Personer AS T2 ON T1.person_id = T2.id
         WHERE T1.rom_id = ? 
@@ -72,7 +73,6 @@ app.get('/messages/:rom_id', (req, res) => {
         res.json({ "message": "success", "data": rows.reverse() }); 
     });
 });
-
 // Post en ny melding
 app.post('/message', (req, res) => {
     const { user, message, rom } = req.body; 
@@ -104,6 +104,23 @@ function insertMessage(person_id, innhold, rom_id, res) {
         res.status(201).json({ "message": "success", "id": this.lastID });
     });
 }
+
+// Nytt endepunkt for å SLETTE en melding
+app.delete('/message/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "DELETE FROM melding WHERE id = ?";
+    
+    db.run(sql, [id], function(err) {
+        if (err) {
+            return res.status(500).json({ "error": err.message });
+        }
+        // Bare for å være sikker på at vi faktisk slettet noe
+        if (this.changes === 0) {
+            return res.status(404).json({ "error": "Melding ikke funnet." });
+        }
+        res.status(200).json({ "message": "Melding slettet." });
+    });
+});
 
 // Database-oppsett og Server-start
 db.serialize(() => {
