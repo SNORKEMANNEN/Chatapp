@@ -49,16 +49,16 @@
         }
         .message strong { color: #0056b3; }
         
-        /* Stilen for tidspunktet (f.eks. "14:30") */
+        /* Stilen for tidspunktet */
         .message .tid {
             font-size: 0.8em;
             color: #777;
             margin-right: 5px;
         }
 
-        /* Stilen for slette-knappen (X) */
+        /* Stilen for slette-knappen */
         .delete-msg-btn {
-            position: absolute; /* Plasseres "oppå" meldingen */
+            position: absolute; /* Plasseres oppå meldingen */
             top: 50%;
             transform: translateY(-50%); /* Sentrerer loddrett */
             right: 10px;
@@ -72,7 +72,7 @@
         #input-area { 
             display: flex; 
             padding: 10px; 
-            flex-wrap: wrap; /* Lar elementer "knekke" til ny linje på små skjermer */
+            flex-wrap: wrap; 
             background: #f9f9f9; 
             border-radius: 0 0 8px 8px; 
         }
@@ -81,7 +81,7 @@
             padding: 10px; 
             border-radius: 8px; 
             margin-bottom: 5px; 
-            flex-basis: 150px; /* Start-bredde */
+            flex-basis: 150px; 
             margin-right: 5px; 
         }
         #room-selector { 
@@ -137,7 +137,7 @@
                 <select id="rom-select"></select>
                 <button id="create-room-btn">+</button>
             </div>
-            <input type="text" id="message-input" placeholder="Skriv en melding...">
+            <input type="text" id="message-input" placeholder="Skriv en melding">
             <button id="send-button">Send</button>
         </div>
     </div>
@@ -163,17 +163,16 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Hjelpefunksjon: Gjør en databasestreng (timestamp) om til "1 time siden" e.l.
+        // Hjelpefunksjon: Gjør en databasestreng (timestamp) om til "1 time siden"
         function formaterTidSiden(timestamp) {
-            // .replace(" ", "T") + "Z" er et triks for å sikre at tiden leses som UTC
             const tid = new Date(timestamp.replace(" ", "T") + "Z");
             const nå = new Date();
             const diffMs = nå - tid; // Forskjell i millisekunder
 
             const msPerDag = 1000 * 60 * 60 * 24;
             const msPerUke = msPerDag * 7;
-            const msPerMaaned = msPerDag * 30.44; 
-            const msPerÅr = msPerDag * 365.25; 
+            const msPerMaaned = msPerDag * 30; 
+            const msPerÅr = msPerDag * 365; 
 
             // Sjekker fra største til minste tidsenhet
             if (diffMs >= msPerÅr) {
