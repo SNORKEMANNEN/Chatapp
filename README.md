@@ -1,4 +1,4 @@
-#  Min Chat App
+#  Chatapp
 
 Her er chat-appen jeg har laget! Målet var å lære hvordan man bygger en hel nettside fra bunnen av – altså både det du ser (frontend) og serveren som jobber i bakgrunnen (backend).
 
