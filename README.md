@@ -1,63 +1,44 @@
-#  Modern Chat Application
+#  Min Chat App
 
-Dette er en komplett **Full-Stack Chat-applikasjon** bygget fra bunnen av. Prosjektet er designet for å lære bort kjerneprinsippene i webutvikling ved å koble sammen en **Frontend** (HTML/CSS/JS) med en **Backend** (Node.js) og en **Database** (SQLite).
+Her er chat-appen jeg har laget! Målet var å lære hvordan man bygger en hel nettside fra bunnen av – altså både det du ser (frontend) og serveren som jobber i bakgrunnen (backend).
 
-Applikasjonen har et moderne, "clean" design inspirert av apper som Discord, med støtte for både **Dark Mode**, **Bildeopplasting** og **Administrasjon** (sletting).
-
----
-
-##  Funksjonalitet
-
-###  Design & Brukeropplevelse
-* **Moderne UI:** Rent design med mye luft, runde hjørner og skygger.
-* **Dark Mode / Light Mode:** Bytt tema med et knappetrykk. Fargene styres dynamisk via CSS-variabler.
-* **Responsiv:** Fungerer fint på ulike skjermstørrelser.
-
-###  Kjernefunksjoner
-* **Kanaler (Rom):** Opprett nye chatterom (#kanaler) og bytt mellom dem.
-* **Brukere:** Opprett en brukerprofil for å delta i samtalen.
-* **Meldinger:** Send tekstmeldinger som lagres permanent.
-* **Bildeopplasting:** Send bilder direkte i chatten! (Bildene konverteres til tekst og lagres i databasen).
-* **Sletting:** Hold musen over en kanal, bruker eller melding for å se slette-ikonet (søppelbøtte/kryss).
-* **Sanntids-følelse:** Chatten oppdaterer seg automatisk hvert 3. sekund (Polling).
+Den ser ganske clean ut (inspirert av Discord), og du kan bytte til **Dark Mode** så du ikke blir blind om kvelden. 😎
 
 ---
 
-##  Teknologier
+##  Hva kan den gjøre?
 
-Dette prosjektet bruker **ingen store rammeverk** (som React eller Angular) på frontend, for å holde koden enkel og lærerik.
-
-### Backend (Server)
-* **[Node.js](https://nodejs.org/):** JavaScript på serveren.
-* **[Express](https://expressjs.com/):** Håndterer API-ruter (GET, POST, DELETE).
-* **[SQLite3](https://github.com/TryGhost/node-sqlite3):** Enkel SQL-database som lagres i en fil.
-* **[CORS](https://www.npmjs.com/package/cors):** Tillater kommunikasjon mellom frontend og backend.
-
-### Frontend (Klient)
-* **HTML5:** Struktur.
-* **CSS3:** Flexbox, CSS Variables (`:root`) for theming.
-* **JavaScript (ES6+):** `async/await` for API-kall og logikk.
-* **Google Fonts & Icons:** "Inter" font og "Material Icons".
+* **Lage rom:** Du kan lage egne kanaler (#generelt, #gaming, osv.) og bytte mellom dem.
+* **Brukere:** Du velger deg et navn, og så er du i gang.
+* **Sende bilder:** Ja, du kan faktisk sende bilder! 📸
+* **Slette ting:** Angrer du på en melding? Eller vil du fjerne en kanal? Bare hold musa over og trykk på søppelbøtta.
+* **Dark Mode:** Fordi lyst modus er pain.
+* **Husker alt:** Alt lagres i en database, så meldingene er der selv om du restarter serveren.
 
 ---
 
-##  Installasjon og Kjøring
+##  Hva er den laget med?
 
-Følg disse stegene for å kjøre prosjektet lokalt på din maskin.
+Jeg holdt det enkelt og brukte ikke tunge frameworks som React. Bare ren koding for å skjønne hvordan ting funker.
 
-### 1. Forutsetninger
-Du må ha [Node.js](https://nodejs.org/) installert.
+* **Node.js:** Motoren som kjører serveren.
+* **Express:** Hjelper oss å styre trafikken (API-et).
+* **SQLite:** En superenkel database som bare er én fil. Slipper å sette opp masse styr.
+* **HTML/CSS/JS:** Det du ser i nettleseren. Brukte litt tid på CSS-en for å få det til å se proft ut.
 
-### 2. Klargjør prosjektet
-Åpne terminalen (eller command prompt) og naviger til mappen du vil ha prosjektet i.
+---
+
+##  Hvordan kjøre den?
+
+**1. Du må ha Node**
+Sjekk at du har [Node.js](https://nodejs.org/) installert først.
+
+**2. Fiks mappen**
+Åpne terminalen (eller CMD) og skriv dette:
 
 ```bash
-# 1. Lag en ny mappe (hvis du ikke har en)
-mkdir min-chat-app
+# Gå inn i mappen
 cd min-chat-app
 
-# 2. Initialiser prosjektet (hvis du ikke har package.json fra før)
-npm init -y
-
-# 3. Installer de nødvendige pakkene
+# Last ned pakkene som trengs
 npm install express sqlite3 cors
