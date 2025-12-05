@@ -2,387 +2,422 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatapp</title>
+    <title>Modern Chat</title>
     
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Grunnleggende oppsett for å sentrere chat-boksen på siden */
+        /* --- 1. FARGER OG INNSTILLINGER (CSS VARIABLER) --- */
+        /* :root er som "innstillinger" for hele nettsiden. 
+           Her bestemmer vi hva "farge-1", "farge-2" osv. skal være.
+           Hvis vi endrer en farge her, endres den overalt!
+        */
+        :root {
+            /* LYS MODUS (Standard farger) */
+            --bg-app: #ffffff;       /* Bakgrunn på hele siden */
+            --bg-panel: #f7f8fa;     /* Bakgrunn på menyene */
+            --tekst-hoved: #1a1a1a;  /* Vanlig tekstfarge */
+            --tekst-sekundær: #6b7280; /* Grå tekst (mindre viktig) */
+            --primær: #4f46e5;       /* Hovedfargen (Blå/Lilla) */
+            --primær-lys: #e0e7ff;   /* Lys variant av hovedfargen */
+            --hover: #eef0f4;        /* Farge når man holder musen over noe */
+            --input-bg: #ffffff;     /* Bakgrunn i skrivefeltet */
+            --skygge: 0 4px 12px rgba(0, 0, 0, 0.05); /* En liten skygge for dybde */
+            --border-radius: 16px;   /* Hvor runde hjørnene skal være */
+        }
+
+        /* Når vi skrur på "Dark Mode", legger vi klassen "dark-mode" på <body>.
+           Da overskriver vi fargene over med disse mørke fargene i stedet.
+        */
+        body.dark-mode {
+            --bg-app: #2f3136;
+            --bg-panel: #202225;
+            --tekst-hoved: #ffffff;
+            --tekst-sekundær: #b9bbbe;
+            --primær: #5865f2;
+            --primær-lys: #3c3f45;
+            --hover: #36393f;
+            --input-bg: #40444b;
+            --skygge: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- 2. GENERELT UTSEENDE --- */
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: grid; 
-            place-items: center; 
-            min-height: 90vh; 
-            background: #f0f2f5; 
             margin: 0; 
+            height: 100vh; /* 100vh betyr 100% av skjermhøyden */
+            display: flex; /* Flex gjør at vi kan legge menyene ved siden av hverandre */
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-app); 
+            color: var(--tekst-hoved); 
+            overflow: hidden; /* Hindrer at hele nettsiden scroller (vi scroller bare inni boksene) */
         }
         
-        /* Hoved-containeren for hele chatten */
-        #chat-container { 
-            width: 90%; 
-            max-width: 500px; 
-            border: 1px solid #ddd; 
-            background: #fff; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-        }
+        /* Dette gjør at alle animasjoner (fargebytte osv) skjer mykt */
+        * { box-sizing: border-box; outline: none; transition: background 0.2s, color 0.2s; }
         
-        /* Boksen hvor meldingene vises */
-        #chat-box { 
-            height: 400px; 
-            overflow-y: auto; /* Viktig: Legger til scrollbar når det er fullt */
-            padding: 10px; 
-            border-bottom: 1px solid #eee; 
+        /* Gjør scrollbaren penere (mindre og grå) */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+        /* --- 3. SIDEPANELER (Venstre og Høyre meny) --- */
+        .sidebar { 
+            width: 280px; 
+            background: var(--bg-panel); 
             display: flex; 
-            flex-direction: column; /* Meldinger stables loddrett */
-        }
-        
-        /* Stilen for én enkelt meldingsboble */
-        .message { 
-            margin-bottom: 10px; 
-            padding: 8px 12px; 
-            background: #e6f7ff; 
-            border-radius: 18px; 
-            max-width: 70%; 
-            word-wrap: break-word; /* Kutter lange ord */
-            position: relative; /* Nødvendig for slette-knappen */
-            padding-right: 25px; /* Plass til slette-knappen */
-        }
-        .message strong { color: #0056b3; }
-        
-        /* Stilen for tidspunktet */
-        .message .tid {
-            font-size: 0.8em;
-            color: #777;
-            margin-right: 5px;
+            flex-direction: column; /* Ting inni menyen legges under hverandre */
+            padding: 20px; 
+            border-right: 1px solid rgba(0,0,0,0.03);
         }
 
-        /* Stilen for slette-knappen */
-        .delete-msg-btn {
-            position: absolute; /* Plasseres oppå meldingen */
-            top: 50%;
-            transform: translateY(-50%); /* Sentrerer loddrett */
-            right: 10px;
-            color: #aaa;
-            cursor: pointer;
-            font-weight: bold;
+        .header { 
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--tekst-sekundær); 
+            margin-bottom: 15px; opacity: 0.8;
         }
-        .delete-msg-btn:hover { color: #d9534f; /* Rød ved hover */ }
 
-        /* Området nederst med input-felt og knapper */
-        #input-area { 
-            display: flex; 
-            padding: 10px; 
-            flex-wrap: wrap; 
-            background: #f9f9f9; 
-            border-radius: 0 0 8px 8px; 
+        /* Listen inni menyen som kan scrolles */
+        .list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+
+        /* Knappene i listen (Kanaler/Brukere) */
+        .item { 
+            padding: 12px 16px; border-radius: 12px; cursor: pointer; 
+            display: flex; justify-content: space-between; align-items: center; 
+            color: var(--tekst-sekundær); font-weight: 500; font-size: 0.95rem;
         }
-        #username { 
-            border: 1px solid #ccc; 
-            padding: 10px; 
-            border-radius: 8px; 
-            margin-bottom: 5px; 
-            flex-basis: 150px; 
-            margin-right: 5px; 
+        .item:hover { background: var(--hover); color: var(--tekst-hoved); } /* Når musen er over */
+        .active { background: var(--primær-lys); color: var(--primær); font-weight: 600; } /* Når den er valgt */
+
+        /* Slette-ikonet (vises kun når man holder musen over .item) */
+        .del-icon { font-size: 18px; opacity: 0; color: #ff5252; transition: 0.2s; }
+        .item:hover .del-icon { opacity: 1; }
+
+        /* Knapper nederst (+ Ny kanal osv) */
+        .bottom-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-modern { 
+            width: 100%; padding: 12px; border: none; border-radius: 12px;
+            background: var(--hover); color: var(--tekst-hoved); font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        #room-selector { 
-            display: flex; 
-            flex-grow: 1; /* Tar resten av plassen ved siden av brukernavn */
-            margin-bottom: 5px; 
+        .btn-modern:hover { background: var(--primær); color: white; transform: translateY(-1px); }
+
+        /* --- 4. CHAT OMRÅDE (Midten) --- */
+        .chat-area { 
+            flex: 1; /* Ta all gjenværende plass */
+            display: flex; flex-direction: column; 
+            background: var(--bg-app); position: relative; 
+            min-width: 400px;
         }
-        #rom-select { 
-            flex-grow: 1; 
-            border: 1px solid #ccc; 
-            border-radius: 8px 0 0 8px; 
-            padding: 10px; 
-            background: #fff; 
+
+        .chat-header { 
+            height: 70px; padding: 0 30px; display: flex; align-items: center; 
+            font-size: 1.2rem; font-weight: 700; 
+            border-bottom: 1px solid rgba(0,0,0,0.03);
         }
-        #create-room-btn { 
-            flex-basis: 40px; 
-            border: 1px solid #ccc; 
-            background: #f0f0f0; 
-            cursor: pointer; 
-            border-radius: 0 8px 8px 0; 
-            border-left: none; 
-            font-size: 1.2em; 
+
+        /* Her kommer meldingene */
+        .messages { 
+            flex: 1; padding: 20px 30px; overflow-y: auto; 
+            display: flex; flex-direction: column; gap: 10px; 
         }
-        #message-input { 
-            flex-basis: 100%; /* Tar full bredde (ny linje) */
-            border: 1px solid #ccc; 
-            padding: 10px; 
-            border-radius: 8px; 
-            margin-right: 5px; 
-            margin-bottom: 5px; 
+
+        /* En enkelt melding-boble */
+        .msg { 
+            position: relative; padding: 10px 14px; border-radius: 12px;
+            margin-bottom: 4px; transition: 0.1s;
         }
-        #send-button { 
-            background: #007bff; 
-            color: white; 
-            border: none; 
-            padding: 10px 15px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            flex-basis: 100%; /* Tar full bredde */
-            font-weight: bold; 
+        .msg:hover { background: var(--hover); } /* Lyser opp når du peker på den */
+
+        .msg-info { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+        .author { font-weight: 600; color: var(--tekst-hoved); font-size: 0.95rem; }
+        .time { font-size: 0.75rem; color: var(--tekst-sekundær); }
+        .content { line-height: 1.5; color: var(--tekst-hoved); font-size: 1rem; }
+        
+        /* Bilder i chatten */
+        .img-preview { 
+            max-width: 350px; border-radius: 16px; margin-top: 10px; 
+            box-shadow: var(--skygge); cursor: zoom-in; transition: transform 0.2s;
         }
-        #send-button:hover { background: #0056b3; }
+        .img-preview:hover { transform: scale(1.02); } /* Zoomer litt når man peker */
+
+        .msg-del { position: absolute; top: 10px; right: 15px; color: #ff5252; opacity: 0; cursor: pointer; }
+        .msg:hover .msg-del { opacity: 1; }
+
+        /* --- 5. SKRIVEFELT --- */
+        .input-container { padding: 30px; background: transparent; }
+        
+        .input-box { 
+            background: var(--input-bg); border-radius: 50px; /* Pilleform */
+            display: flex; align-items: center; padding: 8px 10px; 
+            box-shadow: var(--skygge); border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        input[type="text"] { 
+            flex: 1; background: transparent; border: none; 
+            padding: 12px 15px; font-size: 1rem; color: var(--tekst-hoved); 
+        }
+
+        /* Runde knapper (Send / Bilde) */
+        .circle-btn { 
+            width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+            background: transparent; color: var(--tekst-sekundær); display: flex; 
+            align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .circle-btn:hover { background: var(--primær-lys); color: var(--primær); }
+        .send-btn { background: var(--primær); color: white; }
+        .send-btn:hover { background: var(--tekst-hoved); color: white; }
+
+        .status-txt { margin-top: 10px; margin-left: 20px; font-size: 0.85rem; color: var(--tekst-sekundær); }
     </style>
 </head>
 <body>
 
-    <div id="chat-container">
-        <div id="chat-box"></div>
-        <div id="input-area">
-            <input type="text" id="username" placeholder="Ditt Navn">
-            <div id="room-selector">
-                <label for="rom-select">Rom:</label>
-                <select id="rom-select"></select>
-                <button id="create-room-btn">+</button>
+    <div class="sidebar">
+        <div class="header">Dine Kanaler</div>
+        <div id="romListe" class="list"></div>
+        
+        <div class="bottom-actions">
+            <button onclick="nyttRom()" class="btn-modern">
+                <span class="material-icons-round">add</span> Ny Kanal
+            </button>
+            <button onclick="byttTema()" class="btn-modern">
+                <span class="material-icons-round" id="temaIkon">dark_mode</span>
+                <span id="temaTekst">Dark Mode</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="chat-area">
+        <div class="chat-header" id="romTittel"># Velg en kanal</div>
+        
+        <div id="chatBox" class="messages">
+            <div style="margin:auto; text-align:center; opacity:0.5;">
+                <span class="material-icons-round" style="font-size: 48px;">chat_bubble_outline</span><br>
+                Velg en kanal og en bruker for å starte.
             </div>
-            <input type="text" id="message-input" placeholder="Skriv en melding">
-            <button id="send-button">Send</button>
+        </div>
+        
+        <div class="input-container">
+            <div class="input-box">
+                <input type="file" id="filInput" hidden>
+                
+                <button class="circle-btn" onclick="document.getElementById('filInput').click()" title="Send bilde">
+                    <span class="material-icons-round">add_photo_alternate</span>
+                </button>
+                
+                <input type="text" id="tekstInput" placeholder="Velg en bruker først..." disabled>
+                
+                <button class="circle-btn send-btn" onclick="send()">
+                    <span class="material-icons-round">arrow_upward</span>
+                </button>
+            </div>
+            <div class="status-txt">Du skriver som: <b id="brukerNavn" style="color:var(--primær)">Ingen valgt</b></div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="header">Medlemmer</div>
+        <div id="brukerListe" class="list"></div>
+        
+        <div class="bottom-actions">
+            <button onclick="nyBruker()" class="btn-modern">
+                <span class="material-icons-round">person_add</span> Ny Bruker
+            </button>
         </div>
     </div>
 
     <script>
-        // --- 1. GLOBALE KONSTANTER OG ELEMENTER ---
-        // Adressen til serveren som har dataene
-        const API_URL = 'http://localhost:3000';
+        // Adressen til serveren vår (Backend)
+        const API = 'http://localhost:3000';
         
-        // "Henter" HTML-elementene så vi kan bruke dem i JavaScript
-        const chatBox = document.getElementById('chat-box');
-        const usernameInput = document.getElementById('username'); 
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-        const romSelect = document.getElementById('rom-select');
-        const createRoomBtn = document.getElementById('create-room-btn');
+        // Disse variablene husker hva brukeren har klikket på
+        let romId = null; 
+        let brukerId = null;
 
+        // --- ENKLE HJELPEFUNKSJONER ---
 
-        // --- 2. KJERNEFUNKSJONER ---
-
-        // Scroller chatteboksen til bunnen (for å vise nyeste melding)
-        function scrollToBottom() {
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // Hjelpefunksjon: Gjør en databasestreng (timestamp) om til "1 time siden"
-        function formaterTidSiden(timestamp) {
-            const tid = new Date(timestamp.replace(" ", "T") + "Z");
-            const nå = new Date();
-            const diffMs = nå - tid; // Forskjell i millisekunder
-
-            const msPerDag = 1000 * 60 * 60 * 24;
-            const msPerUke = msPerDag * 7;
-            const msPerMaaned = msPerDag * 30; 
-            const msPerÅr = msPerDag * 365; 
-
-            // Sjekker fra største til minste tidsenhet
-            if (diffMs >= msPerÅr) {
-                const år = Math.floor(diffMs / msPerÅr);
-                return år === 1 ? '1 år siden' : `${år} år siden`;
-            } else if (diffMs >= msPerMaaned) {
-                const mnd = Math.floor(diffMs / msPerMaaned);
-                return mnd === 1 ? '1 mnd siden' : `${mnd} mnd siden`;
-            } else if (diffMs >= msPerUke) {
-                const uker = Math.floor(diffMs / msPerUke);
-                return uker === 1 ? '1 uke siden' : `${uker} uker siden`;
-            } else if (diffMs >= msPerDag) {
-                const dager = Math.floor(diffMs / msPerDag);
-                return dager === 1 ? '1 dag siden' : `${dager} dager siden`;
-            } else {
-                // Mindre enn 1 dag: Vis klokkeslett (f.eks. "14:30:15")
-                return tid.toLocaleTimeString('no-NO');
-            }
-        }
-
-        // Henter meldinger fra serveren og viser dem i chatBox
-        async function fetchMessages() {
-            const romId = romSelect.value;
-            if (!romId) { // Hvis ikke noe rom er valgt, stopp.
-                chatBox.innerHTML = '<div style="text-align: center; color: #888; padding-top: 20px;">Velg et rom.</div>';
-                return;
-            }
-
-            try {
-                // 'await' pauser koden til 'fetch' (nettverkskallet) er ferdig
-                const response = await fetch(`${API_URL}/messages/${romId}`);
-                const result = await response.json();
-                
-                chatBox.innerHTML = ''; // Tømmer chatten før vi fyller på nytt
-                
-                if (result.data.length === 0) {
-                    chatBox.innerHTML = '<div style="text-align: center; color: #888; padding-top: 20px;">Ingen meldinger her.</div>';
-                }
-
-                // Går gjennom hver melding (msg) vi fikk fra serveren
-                result.data.forEach(msg => {
-                    const msgElement = document.createElement('div');
-                    msgElement.classList.add('message');
-                    
-                    // Bruker hjelpefunksjonen til å formatere tiden
-                    const formatertTid = formaterTidSiden(msg.timestamp);
-
-                    // Lager HTML for meldingen
-                    // 'data-id' lagrer meldingens ID på slette-knappen
-                    msgElement.innerHTML = `
-                        <span class="tid">[${formatertTid}]</span> 
-                        <strong>${msg.navn}:</strong> ${msg.innhold}
-                        <span class="delete-msg-btn" data-id="${msg.id}">×</span>
-                    `;
-                    chatBox.appendChild(msgElement); // Legger elementet til i chat-boksen
-                });
-                
-                scrollToBottom(); // Scroller til bunnen
-
-            } catch (error) {
-                console.error("Klarte ikke hente meldinger:", error);
-            }
-        }
-        
-        // Sender en ny melding til serveren
-        async function sendMessage() {
-            const user = usernameInput.value.trim(); 
-            const message = messageInput.value.trim(); 
-            const romId = romSelect.value;
+        // Denne funksjonen bytter mellom lyst og mørkt tema
+        function byttTema() {
+            // .toggle() legger til klassen hvis den mangler, eller fjerner den hvis den er der
+            document.body.classList.toggle('dark-mode');
             
-            // Stopper hvis et av feltene mangler
-            if (!user || !message || !romId) {
-                alert('Du må fylle ut Navn, velge et Rom og skrive en melding.');
-                return;
-            }
-            try {
-                // Sender data med 'POST'-metoden
-                await fetch(`${API_URL}/message`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: user, message: message, rom: romId }),
-                });
-                
-                messageInput.value = ''; // Tømmer meldingsfeltet
-                await fetchMessages(); // Henter meldinger på nytt (inkludert den nye)
-            } catch (error) {
-                console.error("Klarte ikke sende melding:", error);
-            }
-        }
-        
-        // Henter rom-listen fra serveren og fyller nedtrekksmenyen
-        async function fetchAndPopulateRooms() {
-            try {
-                const response = await fetch(`${API_URL}/rooms`);
-                const result = await response.json();
-                
-                romSelect.innerHTML = ''; // Tømmer listen først
-                
-                if (result.data.length === 0) {
-                    romSelect.innerHTML = '<option disabled>Ingen rom funnet</option>';
-                } else {
-                    // Lager et <option>-element for hvert rom
-                    result.data.forEach(rom => {
-                        const option = document.createElement('option');
-                        option.value = rom.id;
-                        option.textContent = rom.navn;
-                        romSelect.appendChild(option);
-                    });
-                }
-                // Henter meldinger for det rommet som er valgt som standard
-                await fetchMessages(); 
-            } catch (error) {
-                console.error("Klarte ikke hente rom:", error);
-            }
+            // Sjekk om vi er i dark mode nå, og bytt tekst/ikon på knappen
+            const erMork = document.body.classList.contains('dark-mode');
+            document.getElementById('temaTekst').innerText = erMork ? "Light Mode" : "Dark Mode";
+            document.getElementById('temaIkon').innerText = erMork ? "light_mode" : "dark_mode";
         }
 
-        // Kjører når brukeren trykker på '+' for å lage et nytt rom
-        async function handleCreateRoom() {
-            const newRomName = prompt("Hva skal det nye rommet hete?");
-            if (!newRomName || newRomName.trim() === '') return; // Avbryt hvis tomt
+        // Lager en pen dato (f.eks "I dag 14:00")
+        function dato(t) {
+            const d = new Date(t.replace(" ", "T") + "Z");
+            const kl = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            // Sjekker om datoen er i dag
+            return (d.toDateString() === new Date().toDateString()) ? `I dag ${kl}` : `${d.toLocaleDateString()} ${kl}`;
+        }
+
+        // --- KOMMUNIKASJON MED SERVEREN (API) ---
+
+        // 1. Hent alle rom fra serveren
+        async function hentRom() {
+            // "await fetch" betyr: Vent til serveren svarer før vi går videre
+            const data = await (await fetch(API + '/rooms')).json();
             
-            try {
-                // Send det nye romnavnet til serveren
-                const response = await fetch(`${API_URL}/room`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ navn: newRomName.trim() })
-                });
-                
-                const newRom = await response.json(); // Får det nye rommet (med ID) tilbake
-                
-                // Legg til det nye rommet i nedtrekksmenyen
-                const newOption = document.createElement('option');
-                newOption.value = newRom.id;
-                newOption.textContent = newRom.navn;
-                romSelect.appendChild(newOption);
-                
-                // Fjern "Ingen rom funnet" hvis den finnes
-                const defaultOpt = romSelect.querySelector('option[disabled]');
-                if (defaultOpt) defaultOpt.remove();
-                
-                romSelect.value = newRom.id; // Velg det nye rommet automatisk
-                fetchMessages(); // Hent meldinger (som er tomt)
-                
-            } catch (error) {
-                console.error("Feil ved oppretting av rom:", error);
-                alert("En feil oppstod. Kanskje det rom-navnet finnes fra før?");
-            }
-        }
-
-        // Funksjon for å kalle på slette-API-et
-        async function deleteMessage(id) {
-            console.log(`Prøver å slette ID: ${id}`);
-            try {
-                // Sender en 'DELETE'-forespørsel til serveren
-                await fetch(`${API_URL}/message/${id}`, {
-                    method: 'DELETE'
-                });
-                // Henter meldingene på nytt for å vise endringen
-                await fetchMessages(); 
-            } catch (error) {
-                console.error("Klarte ikke slette melding:", error);
-            }
-        }
-
-
-        // --- 3. EVENT LISTENERS (Lyttere) ---
-        // Kobler funksjonene våre til brukerhandlinger (klikk, endring, tastetrykk)
-
-        // Klikk på "Send"-knappen
-        sendButton.addEventListener('click', sendMessage); 
-        
-        // Klikk på "+"-knappen (lag rom)
-        createRoomBtn.addEventListener('click', handleCreateRoom); 
-        
-        // Endring i nedtrekksmenyen (bytte rom)
-        romSelect.addEventListener('change', fetchMessages); 
-        
-        // Trykke "Enter" i meldingsfeltet
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // Lytter etter klikk på HELE chatBoxen (Event Delegation)
-        // Dette er smartere enn å legge en lytter på hver eneste slette-knapp
-        chatBox.addEventListener('click', (e) => {
-            // Sjekk om tingen vi klikket på har klassen 'delete-msg-btn'
-            if (e.target.classList.contains('delete-msg-btn')) {
-                // Hent ID-en vi lagret i 'data-id'
-                const id = e.target.dataset.id;
-                deleteMessage(id); // Kall slettefunksjonen
-            }
-        });
-
-        // --- 4. OPPSTART ---
-        // Kjører når siden lastes inn
-        async function init() {
-            // 1. Hent rom-listen (som igjen henter meldinger)
-            await fetchAndPopulateRooms(); 
+            // Finn listen i HTML og tøm den
+            const liste = document.getElementById('romListe');
+            liste.innerHTML = '';
             
-            // 2. Sett opp en "timer" som henter meldinger hvert 3. sekund
-            //    Dette holder chatten oppdatert.
-            setInterval(fetchMessages, 3000); 
+            // Gå gjennom hvert rom vi fikk fra serveren
+            data.data.forEach(r => {
+                const div = document.createElement('div');
+                // Legg til klassen 'active' hvis dette er rommet vi står i
+                div.className = `item ${r.id === romId ? 'active' : ''}`;
+                div.innerHTML = `<span># ${r.navn}</span> <span class="material-icons-round del-icon">delete_outline</span>`;
+                
+                // Hva skjer når man klikker på rommet?
+                div.onclick = (e) => {
+                    // Hvis man trykket på søppelbøtta...
+                    if (e.target.classList.contains('del-icon')) { 
+                        if(confirm("Slette kanal?")) slett('room', r.id); 
+                    } 
+                    // Hvis man trykket på selve rommet...
+                    else { 
+                        romId = r.id; 
+                        document.getElementById('romTittel').innerText = "# " + r.navn; 
+                        hentRom(); // Oppdater menyen (for å flytte fargen)
+                        hentMld(); // Last inn meldinger
+                    }
+                };
+                liste.appendChild(div);
+            });
         }
-        
-        // Starter applikasjonen
-        init(); 
 
+        // 2. Hent alle brukere fra serveren
+        async function hentBrukere() {
+            const data = await (await fetch(API + '/users')).json();
+            const liste = document.getElementById('brukerListe');
+            liste.innerHTML = '';
+
+            data.data.forEach(b => {
+                const div = document.createElement('div');
+                div.className = `item ${b.id === brukerId ? 'active' : ''}`;
+                div.innerHTML = `<span>${b.navn}</span> <span class="material-icons-round del-icon">person_remove</span>`;
+                
+                div.onclick = (e) => {
+                    if (e.target.classList.contains('del-icon')) { 
+                        if(confirm("Kaste ut?")) slett('user', b.id); 
+                    }
+                    else { 
+                        // Velg brukeren
+                        brukerId = b.id; 
+                        document.getElementById('brukerNavn').innerText = b.navn;
+                        // Nå har vi valgt bruker, så vi låser opp skrivefeltet
+                        document.getElementById('tekstInput').disabled = false;
+                        document.getElementById('tekstInput').placeholder = `Melding til #${document.getElementById('romTittel').innerText.substring(2)}...`;
+                        hentBrukere(); 
+                    }
+                };
+                liste.appendChild(div);
+            });
+        }
+
+        // 3. Hent meldinger for valgt rom
+        async function hentMld() {
+            if (!romId) return; // Hvis ingen rom er valgt, gjør ingenting
+            
+            const data = await (await fetch(API + '/messages/' + romId)).json();
+            const boks = document.getElementById('chatBox');
+            boks.innerHTML = '';
+
+            if(data.data.length === 0) boks.innerHTML = '<div style="margin:auto; opacity:0.5; text-align:center;">Ingen meldinger ennå.<br>Start samtalen!</div>';
+
+            data.data.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'msg';
+                
+                // Sjekk om meldingen er tekst eller bilde
+                let innhold = m.innhold.startsWith('data:image') 
+                    ? `<img src="${m.innhold}" class="img-preview" onclick="window.open(this.src)">` 
+                    : `<div class="content">${m.innhold}</div>`;
+
+                // Lag HTML-en for meldingen
+                div.innerHTML = `
+                    <div class="msg-info"><span class="author">${m.navn}</span> <span class="time">${dato(m.timestamp)}</span></div>
+                    ${innhold}
+                    <span class="material-icons-round msg-del" onclick="slett('message', ${m.id})">close</span>
+                `;
+                boks.appendChild(div);
+            });
+            // Scroll automatisk til bunnen så vi ser nyeste melding
+            boks.scrollTop = boks.scrollHeight;
+        }
+
+        // 4. Send melding (tekst eller bilde)
+        async function send(innhold = null) {
+            // Bruk enten bilde-dataen vi fikk inn, ELLER teksten i skrivefeltet
+            const tekst = innhold || document.getElementById('tekstInput').value;
+            
+            // Enkle sjekker
+            if (!brukerId) return alert("Velg bruker til høyre.");
+            if (!romId) return alert("Velg kanal til venstre.");
+            if (!tekst) return;
+
+            // Send til serveren (POST)
+            await fetch(API + '/message', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ user: brukerId, message: tekst, rom: romId })
+            });
+            
+            // Tøm skrivefeltet og last inn meldinger på nytt
+            document.getElementById('tekstInput').value = '';
+            hentMld();
+        }
+
+        // 5. Slette ting (rom, bruker eller melding)
+        async function slett(type, id) {
+            await fetch(`${API}/${type}/${id}`, { method: 'DELETE' });
+            
+            // Hvis vi slettet rommet vi stod i, må vi nullstille
+            if (type === 'room' && romId === id) romId = null;
+            if (type === 'user' && brukerId === id) brukerId = null;
+            
+            lastInn(); // Oppdater alt på siden
+        }
+
+        // 6. Lag nye ting
+        async function nyttRom() {
+            const navn = prompt("Navn på ny kanal?");
+            if (navn) { await fetch(API + '/room', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({navn})}); lastInn(); }
+        }
+        async function nyBruker() {
+            const navn = prompt("Ditt navn?");
+            if (navn) { await fetch(API + '/user', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({navn})}); lastInn(); }
+        }
+
+        // --- OPPSTART (Dette skjer når siden lastes) ---
+
+        // Når man velger en fil fra datamaskinen...
+        document.getElementById('filInput').onchange = function() {
+            if (this.files[0]) {
+                const leser = new FileReader();
+                // Når filen er lest ferdig, send den som en melding
+                leser.onload = (e) => send(e.target.result);
+                leser.readAsDataURL(this.files[0]);
+            }
+            this.value = ''; // Nullstill filvelgeren
+        };
+
+        // Send melding når man trykker Enter
+        document.getElementById('tekstInput').onkeypress = (e) => { if(e.key === 'Enter') send(); };
+        
+        // Funksjon som laster inn alt på nytt
+        function lastInn() { hentRom(); hentBrukere(); hentMld(); }
+        
+        // Kjør med en gang
+        lastInn();
+        
+        // Sjekk etter nye ting automatisk (hvert 3. og 5. sekund)
+        setInterval(hentMld, 3000); 
+        setInterval(hentBrukere, 5000); 
     </script>
 </body>
 </html>
