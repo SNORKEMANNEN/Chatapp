@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // VIKTIG: Vi øker grensen til 10mb så vi kan sende bilder (som er lang tekst)
 app.use(express.json({ limit: '10mb' }));
