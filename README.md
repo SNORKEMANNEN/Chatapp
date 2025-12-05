@@ -1,4 +1,4 @@
-# 💬 Modern Chat Application
+#  Modern Chat Application
 
 Dette er en komplett **Full-Stack Chat-applikasjon** bygget fra bunnen av. Prosjektet er designet for å lære bort kjerneprinsippene i webutvikling ved å koble sammen en **Frontend** (HTML/CSS/JS) med en **Backend** (Node.js) og en **Database** (SQLite).
 
