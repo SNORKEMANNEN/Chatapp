@@ -1,30 +1,30 @@
 #  Chatapp
 
-Her er chat-appen jeg har laget! Målet var å lære hvordan man bygger en hel nettside fra bunnen av – altså både det du ser (frontend) og serveren som jobber i bakgrunnen (backend).
+Her er chat-appen jeg har laget! Målet var å lære hvordan man bygger en hel nettside fra bunnen av med både frontend og backend.
 
-Den ser ganske clean ut (inspirert av Discord), og du kan bytte til **Dark Mode** så du ikke blir blind om kvelden. 😎
+Den er inspirert av Discord, og du kan bytte til **Dark Mode** så du ikke blir blind. 
 
 ---
 
 ##  Hva kan den gjøre?
 
-* **Lage rom:** Du kan lage egne kanaler (#generelt, #gaming, osv.) og bytte mellom dem.
+* **Lage rom:** Du kan lage egne kanaler og bytte mellom dem.
 * **Brukere:** Du velger deg et navn, og så er du i gang.
-* **Sende bilder:** Ja, du kan faktisk sende bilder! 📸
-* **Slette ting:** Angrer du på en melding? Eller vil du fjerne en kanal? Bare hold musa over og trykk på søppelbøtta.
-* **Dark Mode:** Fordi lyst modus er pain.
+* **Sende bilder:** 
+* **Slette ting:** Du kan slette meldinger, kanaler og personer.
+* **Dark Mode:** 
 * **Husker alt:** Alt lagres i en database, så meldingene er der selv om du restarter serveren.
 
 ---
 
 ##  Hva er den laget med?
 
-Jeg holdt det enkelt og brukte ikke tunge frameworks som React. Bare ren koding for å skjønne hvordan ting funker.
+Jeg holdt det enkelt og brukte ikke tunge frameworks. Bare ren koding for å skjønne hvordan ting funker.
 
-* **Node.js:** Motoren som kjører serveren.
-* **Express:** Hjelper oss å styre trafikken (API-et).
-* **SQLite:** En superenkel database som bare er én fil. Slipper å sette opp masse styr.
-* **HTML/CSS/JS:** Det du ser i nettleseren. Brukte litt tid på CSS-en for å få det til å se proft ut.
+* **Node.js:** 
+* **Express:**
+* **SQLite:** 
+* **HTML/CSS/JS:** Brukte litt tid på CSS-en for å få det til å se profesjonelt ut.
 
 ---
 
@@ -34,7 +34,7 @@ Jeg holdt det enkelt og brukte ikke tunge frameworks som React. Bare ren koding 
 Sjekk at du har [Node.js](https://nodejs.org/) installert først.
 
 **2. Fiks mappen**
-Åpne terminalen (eller CMD) og skriv dette:
+Åpne terminalen og skriv dette:
 
 ```bash
 # Gå inn i mappen
