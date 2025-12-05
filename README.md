@@ -33,7 +33,7 @@ Jeg holdt det enkelt og brukte ikke tunge frameworks. Bare ren koding for å skj
 Her er noen av de viktigste delene i koden for å få ting til å funke.
 
 ### 1. Serveren tar imot meldinger
-I `server.js` har vi denne delen. Når du trykker på "Send"-knappen, sender nettsiden data hit. Serveren tar imot bruker-ID, meldingen og rom-ID, og lagrer det i databasen.
+I `server.js` har vi denne delen. Når du trykker på "Send"-knappen, sender nettsiden data hit. Serveren tar imot person-ID, meldingen og rom-ID, og lagrer det i databasen.
 
 ```javascript
 app.post('/message', (req, res) => {
@@ -51,7 +51,7 @@ app.post('/message', (req, res) => {
 ```
 
 ### 2. Slik sender vi bilder
-Vanligvis er bildeopplasting vanskelig. Jeg gjorde en "hack" i `index.html`. Jeg bruker `FileReader` til å gjøre bildet om til en kjempelang tekststreng (Base64). Da tror serveren at det bare er en vanlig tekstmelding!
+Vanligvis er bildeopplasting vanskelig. Jeg gjorde det i `index.html`. Jeg bruker `FileReader` til å gjøre bildet om til en kjempelang tekststreng (Base64). Da tror serveren at det bare er en vanlig tekstmelding!
 
 ```javascript
 // Når du velger en fil...
