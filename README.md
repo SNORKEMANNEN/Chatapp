@@ -1,51 +1,102 @@
-# Chatapplikasjon
+#  Chatapp
 
-Dette er en enkel, lokal chat-applikasjon bygget med Node.js, Express og SQLite. Applikasjonen lar brukere opprette chatterom, velge et brukernavn, og sende meldinger som lagres permanent i en lokal database.
+Her er chat-appen jeg har laget! Målet var å lære hvordan man bygger en hel nettside fra bunnen av med både frontend og backend.
 
-Dette prosjektet er en øvelse i å bygge en "full-stack" applikasjon fra bunnen av, med fokus på hvordan en frontend (HTML/JS) kan kommunisere med en backend (Node.js API) som igjen snakker med en database (SQLite).
-
----
-
-##  Funksjoner
-
-* **Opprett rom:** Brukere kan dynamisk opprette nye chatterom.
-* **Persistent lagring:** Alle rom, brukere og meldinger lagres i en SQLite-database (`chat.db`). Appen husker alt selv om serveren restartes.
-* **"Sanntids"-oppdatering:** Chatten henter nye meldinger hvert 3. sekund (polling).
-* **Smarte tidsstempler:** Viser klokkeslett for meldinger sendt i dag, og "dager/uker/måneder siden" for eldre meldinger.
-* **Slett meldinger:** Enkeltmeldinger kan slettes ved å trykke på et (×) kryss.
+Den er inspirert av Discord, og du kan bytte til **Dark Mode** så du ikke blir blind. 
 
 ---
 
-##  Teknologier
+##  Hva kan den gjøre?
 
-* **Backend:**
-    * [Node.js](https://nodejs.org/en/) - JavaScript-kjøremiljø
-    * [Express.js](https://expressjs.com/) - Minimalistisk web-rammeverk for Node.js
-    * [sqlite3](https://github.com/TryGhost/node-sqlite3) - Driver for SQLite-databasen
-    * [cors](https://www.npmjs.com/package/cors) - For å håndtere Cross-Origin Resource Sharing
-* **Frontend:**
-    * HTML5
-    * CSS3
-    * "Vanilla" JavaScript (ES6+ med `async/await` og `fetch`)
-* **Database:**
-    * [SQLite](https://www.sqlite.org/index.html) - Enkel, filbasert SQL-database
+* **Lage rom:** Du kan lage egne kanaler og bytte mellom dem.
+* **Brukere:** Du velger deg et navn, og så er du i gang.
+* **Sende bilder** 
+* **Slette ting:** Du kan slette meldinger, kanaler og personer.
+* **Dark Mode** 
+* **Husker alt:** Alt lagres i en database, så meldingene er der selv om du restarter serveren.
 
 ---
 
-##  Oppsett og Kjøring
+##  Hva er den laget med?
 
-For å kjøre dette prosjektet lokalt, følg disse stegene:
+Jeg holdt det enkelt og brukte ikke tunge frameworks. Bare ren koding for å skjønne hvordan ting funker.
 
-**1. Klargjør prosjektet**
+* **Node.js** 
+* **Express**
+* **SQLite** 
+* **HTML/CSS/JS:** Brukte litt tid på CSS-en for å få det til å se profesjonelt ut.
 
-Sørg for at du har [Node.js](https://nodejs.org/en/) installert.
+---
+
+## Litt om koden
+
+Her er noen av de viktigste delene i koden for å få ting til å funke.
+
+### 1. Serveren tar imot meldinger
+I `server.js` har vi denne delen. Når du trykker på "Send"-knappen, sender nettsiden data hit. Serveren tar imot person-ID, meldingen og rom-ID, og lagrer det i databasen.
+
+```javascript
+app.post('/message', (req, res) => {
+    const { user, message, rom } = req.body;
+    
+    // Her skjer lagringen i databasen
+    db.run("INSERT INTO melding (person_id, innhold, rom_id) VALUES (?, ?, ?)", 
+        [user, message, rom], 
+        function(err) {
+            // Si ifra til nettsiden at det gikk bra
+            res.json({ "status": "ok" });
+        }
+    );
+});
+```
+
+### 2. Slik sender vi bilder
+Vanligvis er bildeopplasting vanskelig. Jeg gjorde det i `index.html`. Jeg bruker `FileReader` til å gjøre bildet om til en kjempelang tekststreng (Base64). Da tror serveren at det bare er en vanlig tekstmelding!
+
+```javascript
+// Når du velger en fil...
+filInput.addEventListener('change', function() {
+    if (this.files[0]) {
+        const leser = new FileReader();
+        
+        // Når filen er lest ferdig, send resultatet (teksten) til serveren
+        leser.onload = (e) => send(e.target.result);
+        
+        // Start lesingen!
+        leser.readAsDataURL(this.files[0]);
+    }
+});
+```
+
+### 3. Hente meldinger 
+Siden jeg ikke bruker WebSockets (som er litt avansert), ba jeg nettsiden sjekke etter nye meldinger hvert 3. sekund.
+
+```javascript
+// Denne kjører automatisk hele tiden
+setInterval(hentMld, 3000); 
+
+async function hentMld() {
+    // Hent data fra serveren for rommet vi er i
+    const data = await (await fetch(API + '/messages/' + romId)).json();
+    
+    // Tegn opp meldingene på skjermen...
+    // (Resten av koden oppdaterer HTML-en)
+}
+```
+
+---
+
+##  Hvordan kjøre den?
+
+**1. Du må ha Node**
+Sjekk at du har [Node.js](https://nodejs.org/) installert først.
+
+**2. Fiks mappen**
+Åpne terminalen og skriv dette:
 
 ```bash
-# 1. Klon (eller last ned) dette prosjektet til din maskin
-# git clone [DIN_GIT_URL]
-
-# 2. Gå inn i prosjektmappen
+# Gå inn i mappen
 cd min-chat-app
 
-# 3. Installer alle nødvendige pakker (express, sqlite3, cors, etc.)
-npm install
+# Last ned pakkene som trengs
+npm install express sqlite3 cors
