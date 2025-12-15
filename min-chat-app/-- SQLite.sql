@@ -1,0 +1,4 @@
+-- SQLite
+DELETE FROM melding;
+DELETE FROM Personer;
+DELETE FROM Rom;
